@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+	<title>手机端三级联动菜单</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<link rel="stylesheet" type="text/css" href="../src/mobile-area-select.css">
+	<script type="text/javascript" src="../dist/zepto.min.js"></script>
+	<!--<script type="text/javascript" src="../src/jquery-1.8.0.min.js"></script>-->
+	<script src="../dist/mobile-area-select.min.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+	地区：<input type="text" id="area" value="" data-value="" readonly="readonly"/>
+	<input type="hidden" id="hd_area" value=""/>
+	<script>
+	$("#area").mobileAreaSelect({
+		onChange:function(){
+			console.log("点击确定了");
+		}
+	});
+	</script>
+</body>
+</html>
