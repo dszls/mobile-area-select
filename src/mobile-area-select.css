@@ -17,6 +17,7 @@ select { color: inherit;}
     -webkit-box-align: end;
     background: rgba(0,0,0,.4);
     display: none;
+    opacity: 0;
 }
 .select-dialog.show{
 	display: -webkit-box;
@@ -33,7 +34,12 @@ select { color: inherit;}
     font-size: 16px;
     box-sizing: border-box;
     padding: 20px 15px;
+    -webkit-transform:translateY(100%);
 }
+.select-dialog.show{ -webkit-animation: fadeIn .1s both;}
+.select-dialog.show.hide{ -webkit-animation: fadeOut .1s both;}
+.select-dialog.show .select-cnt{ -webkit-animation: conUp .3s 0.1s both;}
+.select-dialog.show.hide .select-cnt{ -webkit-animation: conDown .2s both;}
 .select-cnt .select-scroll{ 
 	position: relative;
 	-webkit-mask: -webkit-gradient(linear,0% 30%,0% 0%,from(rgba(222,187,71,1)),to(rgba(36,142,36,0)));
@@ -76,6 +82,9 @@ select { color: inherit;}
     height: 30px;
     line-height: 30px;
 }
+.select-cnt dd.focus{ }
+.select-cnt dd.focus:not(:first-child){ color: #b5011c;}
+
 .select-cnt .select-action{
 	margin-top: 30px;
 	display: -webkit-box;
@@ -109,6 +118,39 @@ select { color: inherit;}
 .select-cnt .select-action button.b-cencel{
 	background-color: #999999;
 }
-
-
-
+/*淡入*/
+@-webkit-keyframes fadeIn{
+	from{
+		opacity: 0;
+	}
+	to{
+		opacity: 1;
+	}
+}
+/*淡出*/
+@-webkit-keyframes fadeOut{
+	from{
+		opacity: 1;
+	}
+	to{
+		opacity: 0;
+	}
+}
+/*上滑动画*/
+@-webkit-keyframes conUp{
+	from{
+		-webkit-transform:translateY(100%);
+	}
+	to{
+		-webkit-transform:translateY(0);
+	}
+}
+/*下滑*/
+@-webkit-keyframes conDown{
+	from{
+		-webkit-transform:translateY(0);
+	}
+	to{
+		-webkit-transform:translateY(100%);
+	}
+}

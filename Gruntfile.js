@@ -8,7 +8,7 @@ module.exports = function(grunt) {
 	          options:{	// 配置uglify的参数
 	               mangle: { except: ['Zepto'] },	// 防止混淆变量名时对jQuery产生影响
 	               banner: '/*\n Minified by Uglify <%=grunt.template.today("yyyy-MM-dd-HH:mm:ss")%>*/\n',
-	               footer: '\n/* Powered by ds */\n/* Email:sghjdn@qq.com */'	// 在头部和尾部增加声明
+	               footer: '\n/* Powered by https://github.com/dszls/mobile-area-select */'	// 在头部和尾部增加声明
 	          },
 	          minify:{	// 配置uglify的执行目标
 	            files:{

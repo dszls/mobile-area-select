@@ -1,7 +1,6 @@
 // 
 //  mobile-select-ds.js
-//  Created by ds on 2015-10-28.
-//  email:sghjdn@qq.com
+//  https://github.com/dszls/mobile-area-select
 //  
 ;(function(factory) {
 	//amd
@@ -172,18 +171,18 @@
 				if (!item) {
 					item = [];
 				};
-				var str = '<dl><dd ref="0">——</dd>';
+				var str = '<dl><dd ref="0">请选择</dd>';
 				var focus = 0,
 					childData, top = _this.mtop;
 				if (_this.index !== 0 && _this.value[_this.index - 1] == "0") {
-					str = '<dl><dd ref="0" class="focus">——</dd>';
+					str = '<dl><dd ref="0" class="focus">请选择</dd>';
 					_this.value[_this.index] = 0;
 					_this.text[_this.index] = "";
 					focus = 0;
 				} else {
 					
 					if (_this.value[_this.index] == "0") {
-						str = '<dl><dd ref="0" class="focus">——</dd>';
+						str = '<dl><dd ref="0" class="focus">请选择</dd>';
 						focus = 0;
 					}
 					for (var j = 0, len = item.length; j < len; j++) {
@@ -225,7 +224,11 @@
 			},
 			close:function(){
 				this.value = this.oldvalue.concat([]);
-				$("#"+settings.id).remove();
+				$("#"+settings.id).addClass("hide");
+				$("#"+settings.id).find(".select-cnt").on("webkitAnimationEnd.ashow",function(){
+					$("#"+settings.id).remove();
+					$(this).off(".ashow");
+				})
 				$("html").off(".popBlur");
 			}
 			
