@@ -10,14 +10,93 @@
 	<script src="../dist/mobile-area-select.min.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
-	地区：<input type="text" id="area" value="" data-value="" readonly="readonly"/>
-	<input type="hidden" id="hd_area" value=""/>
+	<dl class="list">
+		<dt>省市区三级联动：</dt>
+		<dd><div>绑定input元素</div>
+			<div>
+				<input type="text" id="inputArea" value="" data-value="" readonly="readonly"/>
+			<input type="hidden" id="hd_area" value=""/></div>
+			<div>绑定非Input</div>
+			<div><a style="height: 30px; display: block; width: 150px; border:solid 1px #333" id="area"><span></span><i></i></a></div>
+		</dd>
+		<dt>省市区三级联动：配置默认值 </dt>
+		<dd>
+			<div><input type="text" id="inputArea2" value="" data-value="" readonly="readonly"/></div>
+		</dd>
+		<dt>一级下拉菜单</dt>
+		<dd><input type="text" id="select1" value="" data-value="" readonly="readonly"/></dd>
+		<dt>一级下拉菜单：配置默认值</dt>
+		<dd><input type="text" id="select2" value="" data-value="" readonly="readonly"/></dd>
+	</dl>
+	
+	
+	
 	<script>
 	$("#area").mobileAreaSelect({
+		data:"address.json",
 		onChange:function(){
 			console.log("点击确定了");
 		}
 	});
+	$("#inputArea").mobileAreaSelect({
+		data:"address.json",
+		onChange:function(){
+			console.log("点击确定了");
+		}
+	});
+	$("#inputArea2").mobileAreaSelect({
+		data:"address.json",
+		value:["4522003","4522004","4522006"],
+        isDefault:true,
+		onChange:function(){
+			
+		}
+	});
+	
+	var type=[
+	   {
+	      "pid":"1",
+	      "pname":"大卖场"
+	   },
+	    {
+	        "pid":"2",
+	        "pname":"中小超市"
+	    },
+	    {
+	        "pid":"3",
+	        "pname":"便利店"
+	    },
+	    {
+	        "pid":"4",
+	        "pname":"母婴店"
+	    },
+	    {
+	        "pid":"5",
+	        "pname":"美妆店"
+	    }
+	];
+	$("#select1").mobileAreaSelect({
+        data:type,//json数据路径或者json对象
+        code:"pid",//自定义数据节点数据名称
+        name:"pname",//自定义数据节点文本名称
+        level:1,//几级菜单
+        onChange:function(data){
+            //点击确定后的回调函数
+        }
+    });
+	$("#select2").mobileAreaSelect({
+        data:type,//json数据路径或者json对象
+        separator:' ',//设置地址名称间隔符号，默认为空格字符
+        isMaskClose:true,//是否给mask填加关闭弹层事件
+        code:"pid",//自定义数据节点数据名称
+        name:"pname",//自定义数据节点文本名称
+        level:1,//几级菜单，1-3
+        value:["3"],// 默认显示的数据
+        isDefault:true, //显示value配置的数据,与value配合使用
+        onChange:function(data){
+            //点击确定后的回调函数
+        }
+    });
 	</script>
 </body>
 </html>

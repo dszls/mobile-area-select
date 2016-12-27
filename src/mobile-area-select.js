@@ -1,6 +1,7 @@
 // 
 //  mobile-select-ds.js
-//  https://github.com/dszls/mobile-area-select
+//  
+//  Created by ds on 2015-10-28.
 //  
 ;(function(factory) {
 	//amd
@@ -9,17 +10,19 @@
 	} else if (typeof module === "object" && module && typeof module.exports === "object") {
 		module.exports = factory();
 	} else {
-		factory(window.Zepto || window.jQuery || $);
+		factory($);
 	}
 })(function($) {
-	
 	$.fn.mobileAreaSelect = function( options ) {
 		var rnd = Math.random().toString().replace('.', '');
 		//Options
 		var settings = $.extend({
 			id:"dialog_"+rnd,//弹出层ID
-			data:"address.json",//数据路径
+			data:"json/address.json",//数据路径
+            code:"code",//节点参数名称
+            name:"name",//节点显示文本名称
 			index:0,
+            childName:"",//二级节点名称
 			value:[],//地址code
 			text:[],//地址名称
 			level:3,//几级选择
@@ -28,7 +31,8 @@
 			isMaskClose:true,//是否给mask填加关闭弹层事件
 			closeBtn:".js-close",//绑定关闭弹层事件对象
 			dialog:".select-dialog",
-			onChange:$.noop//点击确定后的回调函数
+			onChange:$.noop,  //点击确定后的回调函数
+            isDefault:false   //初始显示配置的文本
 		}, options );
 		
 		var preventDefault = function(e) {
@@ -53,6 +57,7 @@
 				var _this = this;
 				if (typeof settings.data == "object") {
 					this.data = settings.data;
+                    this.defaultShow();
 				} else {
 					$.ajax({
 						dataType: 'json',
@@ -61,6 +66,7 @@
 						type: 'GET',
 						success: function(result) {
 							_this.data = result.data;
+                            _this.defaultShow();
 						},
 						accepts: {
 							json: "application/json, text/javascript, */*; q=0.01"
@@ -68,21 +74,47 @@
 					});
 				}
 			},
+            defaultShow:function(){
+            	var _this = this;
+                //显示默认数据
+                if(settings.isDefault){
+                    _this.format();
+                    //el赋值
+                    if (_this.$ms[0].nodeName == "INPUT") {
+                        //input
+                        _this.$ms.val(_this.text.join(settings.separator));
+                    }else{
+                        _this.$ms.find("span").text(_this.text.join(settings.separator));
+
+                    }
+                    _this.$ms.attr('data-value', _this.value.join(','));
+                    _this.$ms.attr('data-text', _this.text.join(settings.separator));
+                    //执行回调
+                    settings.onChange.apply(_this,arguments);
+                }
+            },
 			bindEvent:function(){
 				var _this=this;
-				
-				this.$ms.on("click",function(){
+				this.$ms.on("click",function(e){
+					//ios 设置readyOnly不触发弹层bug
+					if(this.tagName=="INPUT"){
+						this.blur();
+					}
 					$("body").append(_this.htmlStr);
+                    //插入后计算实际的列表高度mtop值
+                    _this.mtop= $(".select-cnt .select-scroll p").height()+2;
+
 					$("html").on("touchmove.popBlur",preventDefault);
 					_this.scroller = $('#' + settings.id).find(".select-scroll ul");
 					_this.format();
 					var start = 0,
 						end = 0;
+
 					_this.scroller.children().on('touchstart', function(e) {
 						start = e.originalEvent?e.originalEvent.changedTouches[0].pageY:e.changedTouches[0].pageY;
 					});
 					_this.scroller.children().on('touchmove', function(e) {
-						end = e.originalEvent?e.originalEvent.changedTouches[0].pageY:e.changedTouches[0].pageY;;
+						end = e.originalEvent?e.originalEvent.changedTouches[0].pageY:e.changedTouches[0].pageY;
 						var diff = end - start;
 						var dl = $(e.target).parent();
 						if (dl[0].nodeName != "DL") {
@@ -94,7 +126,7 @@
 						return false;
 					});
 					_this.scroller.children().on('touchend', function(e) {
-						end = e.originalEvent?e.originalEvent.changedTouches[0].pageY:e.changedTouches[0].pageY;;
+						end = e.originalEvent?e.originalEvent.changedTouches[0].pageY:e.changedTouches[0].pageY;
 						var diff = end - start;
 						var dl = $(e.target).parent();
 						if (dl[0].nodeName != "DL") {
@@ -150,14 +182,14 @@
 			createHtml:function(){
 				var str='<div class="select-dialog show" id="'+settings.id+'">'
 							+'<div class="select-cnt">'
+                            +'<div class="select-action"><button class="b-cencel js-close">取消</button><button class="b-submit js-submit">确定</button></div>'
 							+'<div class="select-scroll"><ul>';
-					//根据level添加li
-					for(var i=1;i<=settings.level;i++){
-						str+='<li></li>';
-					}
-					str=str+'</ul><p></p></div>'
-						+'<div class="select-action"><button class="b-submit js-submit">确定</button><button class="b-cencel js-close">取消</button></div>'
-						+'</div></div>';
+                //根据level添加li和设置li宽度
+                for(var i=1;i<=settings.level;i++){
+                    str+='<li style="width:'+100/settings.level+'%"></li>';
+                }
+                str=str+'</ul><p></p></div>'
+                    +'</div></div>';
 				this.htmlStr=str;
 //				return str;
 			},
@@ -168,6 +200,7 @@
 			f: function(data) {
 				var _this = this;
 				var item = data;
+				
 				if (!item) {
 					item = [];
 				};
@@ -175,26 +208,30 @@
 				var focus = 0,
 					childData, top = _this.mtop;
 				if (_this.index !== 0 && _this.value[_this.index - 1] == "0") {
+
 					str = '<dl><dd ref="0" class="focus">请选择</dd>';
 					_this.value[_this.index] = 0;
 					_this.text[_this.index] = "";
 					focus = 0;
 				} else {
-					
 					if (_this.value[_this.index] == "0") {
 						str = '<dl><dd ref="0" class="focus">请选择</dd>';
 						focus = 0;
 					}
 					for (var j = 0, len = item.length; j < len; j++) {
-						var id = item[j].code || 0;
+						var id = item[j][settings.code] || 0;
 						var cls = '';
 						if (_this.value[_this.index] == id) {
 							cls = "focus";
 							focus = id;
-							childData = item[j].cities||item[j].district;
+							childData = item[j].cities||item[j].district||item[j][settings.childName];
 							top = _this.mtop * (-j);
+                            //默认显示，判断value赋值test
+                            if(settings.isDefault){
+                                _this.text[_this.index]=item[j][settings.name];
+                            }
 						};
-						str += '<dd class="' + cls + '" ref="' + id + '">' + item[j].name + '</dd>';
+						str += '<dd style="height:'+this.mtop+'px;line-height:'+this.mtop+'px;" class="' + cls + '" ref="' + id + '">' + item[j][settings.name] + '</dd>';
 						
 					}
 				}
@@ -212,23 +249,22 @@
 			},
 			submit: function() {
 				this.oldvalue = this.value.concat([]);
-				if (this.$ms[0].nodeType == 1) {
+				if (this.$ms[0].nodeName == "INPUT") {
 					//input
 					this.$ms.val(this.text.join(settings.separator));
-					this.$ms.attr('data-value', this.value.join(','));
-				}
-				this.$ms.next(':hidden').val(this.value.join(','));
+				}else{
+                    this.$ms.find("span").text(this.text.join(settings.separator));
+
+                }
+                this.$ms.attr('data-value', this.value.join(','));
+                this.$ms.attr('data-text', this.text.join(settings.separator));
 				this.close();
 				//执行回调
 				settings.onChange.apply(this,arguments);
 			},
 			close:function(){
 				this.value = this.oldvalue.concat([]);
-				$("#"+settings.id).addClass("hide");
-				$("#"+settings.id).find(".select-cnt").on("webkitAnimationEnd.ashow",function(){
-					$("#"+settings.id).remove();
-					$(this).off(".ashow");
-				})
+				$("#"+settings.id).remove();
 				$("html").off(".popBlur");
 			}
 			
